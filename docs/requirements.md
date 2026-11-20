@@ -140,6 +140,9 @@ gelişmiş yetkilendirme mekanizmaları geliştirilmeyecektir.
 - **BR-09:** Bir yama, yalnızca bağlı olduğu güvenlik açığından etkilenen
   bir ürün sürümünü kullanan varlığa uygulanabilir. (TRIGGER)
 
+- **BR-10:** ANALYST_REVIEW kaydı oluşturan kullanıcının rolü
+  Analyst olmalıdır. (TRIGGER)
+
 ## 5. Fonksiyonel Gereksinimler
 
 Her maddenin sonunda ilgili rol ve SQL karşılığı belirtilmiştir.
@@ -214,15 +217,14 @@ Her maddenin sonunda ilgili rol ve SQL karşılığı belirtilmiştir.
 - **Üçlü ilişki:** Analist – Varlık – CVE incelemesi
 - **Specialization:** Varlık → Sunucu / Uç Nokta / Bulut
 - **Union Type (Category):** Varlık sorumlusu → Departman veya Tedarikçi
-- **Kısıtlar:** BR-01 … BR-08
-- **Trigger:** BR-02, BR-06
+- **Kısıtlar:** BR-01 … BR-10
+- **Trigger:** BR-02, BR-06, BR-09, BR-10
 - **View:** FR-12
 - **Karmaşık sorgular:** FR-05, FR-08, FR-09, FR-10, FR-11
 - **Normalizasyon:** Örnek başlangıç veri yapısından 1NF → 2NF → 3NF
   dönüşümü
 - **CRUD işlemleri:** Güvenlik açığı, ürün, varlık ve kullanıcı
   kayıtlarının yönetimi
-- **Trigger:** BR-02, BR-06, BR-09
 
 ## 9. Proje Başarı Ölçütleri
 
