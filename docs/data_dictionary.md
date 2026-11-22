@@ -94,7 +94,7 @@ saklamak.
 |---|---|---|---|
 | product_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Ürün kimliği |
 | name | VARCHAR(255) | NOT NULL | Ürün adı |
-| vendor_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES VENDOR(vendor_id) | Üretici kimliği |
+| vendor_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES VENDOR(vendor_id) ON DELETE RESTRICT ON UPDATE CASCADE | Üretici kimliği |
 
 **Tasarım Notları:**
 
@@ -109,7 +109,7 @@ saklamak.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| product_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES PRODUCT(product_id) | Ürün kimliği |
+| product_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES PRODUCT(product_id) ON DELETE CASCADE ON UPDATE CASCADE | Ürün kimliği |
 | version_number | VARCHAR(100) | NOT NULL | Ürün sürüm numarası |
 | release_date | DATE | NOT NULL | Sürümün yayın tarihi |
 
@@ -131,7 +131,7 @@ tarihi bilgilerini saklamak.
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
 | patch_id | VARCHAR(100) | PRIMARY KEY | Yama kimliği |
-| cve_id | VARCHAR(30) | NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) | İlişkili güvenlik açığı |
+| cve_id | VARCHAR(30) | NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE RESTRICT ON UPDATE CASCADE | İlişkili güvenlik açığı |
 | release_date | DATE | NOT NULL | Yamanın yayın tarihi |
 
 **Tasarım Notları:**
@@ -172,7 +172,7 @@ ad ve konum bilgilerini saklamak.
 | building | VARCHAR(100) | NOT NULL | Bulunduğu bina |
 | floor | VARCHAR(20) | NOT NULL | Bulunduğu kat |
 | room | VARCHAR(50) | NOT NULL | Bulunduğu oda |
-| owner_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES OWNER(owner_id) | Varlığın sorumlusu |
+| owner_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE RESTRICT ON UPDATE CASCADE | Varlığın sorumlusu |
 
 **Tasarım Notları:**
 
@@ -180,7 +180,7 @@ ad ve konum bilgilerini saklamak.
 - Her varlığın tam olarak bir sorumlusu bulunmalıdır.
 - owner_id, OWNER tablosuna yabancı anahtardır.
 - Her varlık tam olarak bir alt türe (SERVER, ENDPOINT veya CLOUD) ait olmalıdır.
-- Alt tür üyeliğinin zorunlu ve birbirini dışlayan yapısı ertelenebilir constraint trigger'lar ile doğrulanacaktır.
+- Alt tür üyeliğinin zorunlu ve birbirini dışlayan yapısı uygulama katmanında doğrulanacaktır; bu proje kapsamında constraint trigger kullanılmayacaktır.
 
 ### 3.9. SERVER
 
@@ -188,7 +188,7 @@ ad ve konum bilgilerini saklamak.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) | Üst varlık kimliği |
+| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE CASCADE ON UPDATE CASCADE | Üst varlık kimliği |
 | operating_system | VARCHAR(100) | NOT NULL | İşletim sistemi |
 | server_role | VARCHAR(100) | NOT NULL | Sunucunun rolü |
 
@@ -203,7 +203,7 @@ ad ve konum bilgilerini saklamak.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) | Üst varlık kimliği |
+| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE CASCADE ON UPDATE CASCADE | Üst varlık kimliği |
 | username | VARCHAR(150) | NOT NULL | İlgili kullanıcı adı |
 
 **Tasarım Notları:**
@@ -217,7 +217,7 @@ ad ve konum bilgilerini saklamak.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) | Üst varlık kimliği |
+| asset_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE CASCADE ON UPDATE CASCADE | Üst varlık kimliği |
 | provider | VARCHAR(100) | NOT NULL | Bulut sağlayıcısı |
 | region | VARCHAR(100) | NOT NULL | Bulut bölgesi |
 
@@ -241,7 +241,7 @@ kimlik altında temsil etmek.
 - OWNER, Department ve Supplier varlıklarının birleşim kategorisini temsil eder.
 - Her OWNER kaydı yalnızca bir sorumlu türüne ait olmalıdır.
 - Her OWNER kaydı tam olarak bir alt türe (DEPARTMENT veya SUPPLIER) ait olmalıdır.
-- owner_type ile alt tür tablosunun eşleşmesi ve alt tür üyeliğinin zorunluluğu ertelenebilir constraint trigger'lar ile doğrulanacaktır.
+- owner_type ile alt tür tablosunun eşleşmesi ve alt tür üyeliğinin zorunluluğu uygulama katmanında doğrulanacaktır; bu proje kapsamında constraint trigger kullanılmayacaktır.
 
 ### 3.13. DEPARTMENT
 
@@ -249,14 +249,13 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| department_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Departman kimliği |
-| department_name | VARCHAR(255) | NOT NULL | Departman adı |
-| owner_id | BIGINT | NOT NULL, UNIQUE, FOREIGN KEY REFERENCES OWNER(owner_id) | Ortak sorumlu kimliği |
+| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Ortak sorumlu kimliği |
+| name | VARCHAR(255) | NOT NULL | Departman adı |
 
 **Tasarım Notları:**
 
-- Her Department kaydı bir OWNER kaydına bağlıdır.
-- owner_id UNIQUE olduğundan aynı OWNER birden fazla Department kaydında kullanılamaz.
+- DEPARTMENT, OWNER tablosunun alt türüdür.
+- owner_id hem birincil hem yabancı anahtardır.
 
 ### 3.14. SUPPLIER
 
@@ -264,14 +263,13 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| supplier_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Tedarikçi kimliği |
-| supplier_name | VARCHAR(255) | NOT NULL | Tedarikçi adı |
-| owner_id | BIGINT | NOT NULL, UNIQUE, FOREIGN KEY REFERENCES OWNER(owner_id) | Ortak sorumlu kimliği |
+| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Ortak sorumlu kimliği |
+| name | VARCHAR(255) | NOT NULL | Tedarikçi adı |
 
 **Tasarım Notları:**
 
-- Her Supplier kaydı bir OWNER kaydına bağlıdır.
-- owner_id UNIQUE olduğundan aynı OWNER birden fazla Supplier kaydında kullanılamaz.
+- SUPPLIER, OWNER tablosunun alt türüdür.
+- owner_id hem birincil hem yabancı anahtardır.
 
 ## 4. İlişki Tabloları
 
@@ -281,7 +279,7 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE | İlgili CVE kimliği |
+| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE ON UPDATE CASCADE | İlgili CVE kimliği |
 | reference_url | TEXT | PRIMARY KEY (bileşik), NOT NULL | Referans bağlantısı |
 
 **Tasarım Notları:**
@@ -296,8 +294,8 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE | CVE kimliği |
-| cwe_id | VARCHAR(20) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CWE(cwe_id) | CWE kimliği |
+| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE ON UPDATE CASCADE | CVE kimliği |
+| cwe_id | VARCHAR(20) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CWE(cwe_id) ON DELETE CASCADE ON UPDATE CASCADE | CWE kimliği |
 
 **Tasarım Notları:**
 
@@ -312,13 +310,13 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE | CVE kimliği |
+| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE CASCADE ON UPDATE CASCADE | CVE kimliği |
 | product_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, bileşik FOREIGN KEY | Ürün kimliği |
 | version_number | VARCHAR(100) | PRIMARY KEY (bileşik), NOT NULL, bileşik FOREIGN KEY | Ürün sürüm numarası |
 
 **Bileşik yabancı anahtar:**
 
-- (product_id, version_number) → PRODUCT_VERSION(product_id, version_number)
+- (product_id, version_number) → PRODUCT_VERSION(product_id, version_number) [ON DELETE CASCADE, ON UPDATE CASCADE]
 
 **Tasarım Notları:**
 
@@ -334,14 +332,14 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| asset_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE CASCADE | Varlık kimliği |
+| asset_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE CASCADE ON UPDATE CASCADE | Varlık kimliği |
 | product_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, bileşik FOREIGN KEY | Ürün kimliği |
 | version_number | VARCHAR(100) | PRIMARY KEY (bileşik), NOT NULL, bileşik FOREIGN KEY | Ürün sürüm numarası |
 | install_date | DATE | NOT NULL | Kurulum tarihi |
 
 **Bileşik yabancı anahtar:**
 
-- (product_id, version_number) → PRODUCT_VERSION(product_id, version_number)
+- (product_id, version_number) → PRODUCT_VERSION(product_id, version_number) [ON DELETE CASCADE, ON UPDATE CASCADE]
 
 **Tasarım Notları:**
 
@@ -358,8 +356,8 @@ kimlik altında temsil etmek.
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
 | application_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Uygulama kaydı kimliği |
-| asset_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) | Yamanın uygulandığı varlık |
-| patch_id | VARCHAR(100) | NOT NULL, FOREIGN KEY REFERENCES PATCH(patch_id) | Uygulanan yama |
+| asset_id | BIGINT | NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE RESTRICT ON UPDATE CASCADE | Yamanın uygulandığı varlık |
+| patch_id | VARCHAR(100) | NOT NULL, FOREIGN KEY REFERENCES PATCH(patch_id) ON DELETE RESTRICT ON UPDATE CASCADE | Uygulanan yama |
 | applied_date | DATE | NOT NULL | Yamanın uygulanma tarihi |
 
 **Ek Kısıtlar:**
@@ -380,7 +378,7 @@ kimlik altında temsil etmek.
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
 | audit_log_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Denetim kaydı kimliği |
-| application_id | BIGINT | NOT NULL, UNIQUE, FOREIGN KEY REFERENCES PATCH_APPLICATION(application_id) | İlgili yama uygulaması |
+| application_id | BIGINT | NOT NULL, UNIQUE, FOREIGN KEY REFERENCES PATCH_APPLICATION(application_id) ON DELETE RESTRICT ON UPDATE CASCADE | İlgili yama uygulaması |
 | created_at | TIMESTAMPTZ | NOT NULL | Denetim kaydının oluşturulma zamanı |
 | event_type | VARCHAR(100) | NOT NULL | Gerçekleşen işlem türü |
 
@@ -397,10 +395,10 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| user_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES USER_ACCOUNT(user_id) | Değerlendirmeyi yapan kullanıcı |
-| asset_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) | Değerlendirilen varlık |
-| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) | Değerlendirilen güvenlik açığı |
-| review_status | VARCHAR(50) | NOT NULL | Değerlendirme durumu |
+| user_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES USER_ACCOUNT(user_id) ON DELETE RESTRICT ON UPDATE CASCADE | Değerlendirmeyi yapan kullanıcı |
+| asset_id | BIGINT | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES ASSET(asset_id) ON DELETE RESTRICT ON UPDATE CASCADE | Değerlendirilen varlık |
+| cve_id | VARCHAR(30) | PRIMARY KEY (bileşik), NOT NULL, FOREIGN KEY REFERENCES CVE(cve_id) ON DELETE RESTRICT ON UPDATE CASCADE | Değerlendirilen güvenlik açığı |
+| review_status | VARCHAR(50) | NOT NULL, CHECK (review_status IN ('Open', 'In_Review', 'Closed')) | Değerlendirme durumu |
 | review_date | DATE | NOT NULL | Değerlendirme tarihi |
 
 **Tasarım Notları:**
@@ -408,5 +406,5 @@ kimlik altında temsil etmek.
 - Her değerlendirme bir kullanıcı, bir varlık ve bir CVE ile ilişkilidir.
 - Bileşik birincil anahtar (user_id, asset_id, cve_id), aynı üçlü için birden fazla değerlendirme kaydı oluşturulmasını önler.
 - Aynı üçlüye ilişkin yeni değerlendirme yapıldığında mevcut kaydın durumu ve tarihi güncellenir.
-- review_status alanının izin verilen değerleri, uygulama gereksinimleri netleştirildikten sonra belirlenecektir.
+- review_status yalnızca Open, In_Review veya Closed değerlerinden birini alabilir.
 - İnceleme kaydı oluşturan kullanıcının role değeri Analyst olmalıdır. Bu kural BR-10 kapsamında trigger ile doğrulanacaktır.

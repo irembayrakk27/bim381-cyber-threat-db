@@ -26,6 +26,7 @@ Tüm dış kaynakların sisteme otomatik aktarılması hedeflenmemektedir.
 | Department | Şirket organizasyon kayıtları | Varlıkların kurum içi sahipliğinin belirlenmesi |
 | Supplier | Şirket tedarikçi kayıtları | Varlıkların dış tedarikçi sahipliğinin belirlenmesi |
 | PatchApplication | Sistem kullanıcılarının uygulama kayıtları | Yama uygulama geçmişinin tutulması |
+| AuditLog | Veritabanı trigger'ı tarafından otomatik oluşturulur | Yama uygulamalarının denetim kayıtlarının tutulması |
 | AnalystReview | Analistlerin inceleme kayıtları | Varlık ve zafiyet değerlendirmelerinin saklanması |
 
 ## 4. Veri Kullanım ve Doğrulama İlkeleri

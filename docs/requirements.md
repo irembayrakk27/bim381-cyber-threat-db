@@ -37,9 +37,9 @@ tasarımı ve SQL uygulamalarını gerçekleştirmektir.
 
 - **Admin:** Kullanıcıların ve sistem kayıtlarının temel yönetim
   işlemlerini gerçekleştirir.
-- **Analist:** Güvenlik açığı ve zayıflık bilgilerini girer, inceler ve
+- **Analyst:** Güvenlik açığı ve zayıflık bilgilerini girer, inceler ve
   raporlar.
-- **BT:** Kurumsal varlıkları, kullanılan ürün sürümlerini ve yama
+- **IT:** Kurumsal varlıkları, kullanılan ürün sürümlerini ve yama
   uygulamalarını takip eder.
 
 Sistem kapsamında kullanıcı ekleme, listeleme, güncelleme ve silme
@@ -88,8 +88,7 @@ gelişmiş yetkilendirme mekanizmaları geliştirilmeyecektir.
 
 - **DR-11:** Varlık türüne özel bilgiler tutulmalıdır:
 
-
- - Sunucu: İşletim sistemi ve sunucu rolü.
+  - Sunucu: İşletim sistemi ve sunucu rolü.
   - Uç nokta: Kullanıcı adı.
   - Bulut: Sağlayıcı ve bölge.
 
@@ -113,6 +112,9 @@ gelişmiş yetkilendirme mekanizmaları geliştirilmeyecektir.
 - **DR-16:** Bir kurumsal varlığın sorumlusu bir iç departman veya dış
   tedarikçi olabilir. Her varlığın yalnızca bir sorumlusu bulunmalıdır.
   Bir departman veya tedarikçi birden fazla varlıktan sorumlu olabilir.
+  Departman ve tedarikçiler için kimlik ve ad bilgileri tutulmalıdır.
+
+- **DR-17:** Her yama uygulaması için otomatik olarak bir denetim kaydı oluşturulmalıdır. Denetim kaydında oluşturulma zamanı ve olay türü tutulmalıdır.
 
 ## 4.1. İş Kuralları
 
@@ -136,7 +138,7 @@ gelişmiş yetkilendirme mekanizmaları geliştirilmeyecektir.
 - **BR-07:** Kullanıcı e-posta adresleri benzersiz olmalıdır. (UNIQUE)
 
 - **BR-08:** Bir varlık yalnızca bir varlık türüne ve bir sorumluya ait
-  olmalıdır.
+  olmalıdır. Bu kuralın bütünlüğü uygulama katmanında doğrulanacaktır.
 - **BR-09:** Bir yama, yalnızca bağlı olduğu güvenlik açığından etkilenen
   bir ürün sürümünü kullanan varlığa uygulanabilir. (TRIGGER)
 
@@ -148,39 +150,39 @@ gelişmiş yetkilendirme mekanizmaları geliştirilmeyecektir.
 Her maddenin sonunda ilgili rol ve SQL karşılığı belirtilmiştir.
 
 - **FR-01:** Güvenlik açığı eklenebilmeli.
-  (Rol: Admin, Analist | SQL: INSERT)
+  (Rol: Admin, Analyst | SQL: INSERT)
 - **FR-02:** Güvenlik açığı güncellenebilmeli.
-  (Rol: Admin, Analist | SQL: UPDATE)
+  (Rol: Admin, Analyst | SQL: UPDATE)
 - **FR-03:** Güvenlik açığı silinebilmeli.
   (Rol: Admin | SQL: DELETE)
 - **FR-04:** Güvenlik açıkları CVSS puanına göre filtrelenebilmeli.
-  (Rol: Analist | SQL: SELECT / WHERE)
+  (Rol: Analyst | SQL: SELECT / WHERE)
 - **FR-05:** Bir güvenlik açığı, ilişkili zayıflık türleri ve etkilenen
   ürün sürümleriyle listelenebilmeli.
-  (Rol: Analist | SQL: JOIN)
+  (Rol: Analyst | SQL: JOIN)
 - **FR-06:** Ürün ve sürüm kayıtları yönetilebilmeli.
   (Rol: Admin | SQL: INSERT / UPDATE)
 - **FR-07:** Kurumsal varlık eklenebilmeli ve kullandığı ürün sürümleri
   kaydedilebilmeli.
-  (Rol: BT | SQL: INSERT)
+  (Rol: IT | SQL: INSERT)
 - **FR-08:** Bir varlığı etkileyen güvenlik açıkları listelenebilmeli.
-  (Rol: BT, Analist | SQL: Çok tablolu JOIN)
+  (Rol: IT, Analyst | SQL: Çok tablolu JOIN)
 - **FR-09:** Belirli bir varlıkta uygulanmamış yaması bulunan güvenlik
   açıkları listelenebilmeli.
-  (Rol: BT, Analist | SQL: İç içe sorgu)
+  (Rol: IT, Analyst | SQL: İç içe sorgu)
 - **FR-10:** Ürün başına etkilenen benzersiz güvenlik açığı sayısı ve
   ortalama CVSS puanı hesaplanabilmeli.
-  (Rol: Analist | SQL: GROUP BY / HAVING)
+  (Rol: Analyst | SQL: GROUP BY / HAVING)
 - **FR-11:** Herhangi bir güvenlik açığından etkilenmeyen varlıklar
   listelenebilmeli.
-  (Rol: BT | SQL: OUTER JOIN)
+  (Rol: IT | SQL: OUTER JOIN)
 - **FR-12:** Kritik seviyedeki güvenlik açıklarının özeti sunulabilmeli.
-  (Rol: Analist | SQL: VIEW)
+  (Rol: Analyst | SQL: VIEW)
 - **FR-13:** Yama uygulaması kaydedilebilmeli ve otomatik denetim kaydı
   oluşturulmalı.
-  (Rol: BT | SQL: INSERT + TRIGGER)
+  (Rol: IT | SQL: INSERT + TRIGGER)
 - **FR-14:** Analist incelemeleri kaydedilebilmeli ve listelenebilmeli.
-  (Rol: Analist | SQL: INSERT / SELECT)
+  (Rol: Analyst | SQL: INSERT / SELECT)
 - **FR-15:** Kullanıcı ekleme, listeleme, güncelleme ve silme işlemleri
   gerçekleştirilebilmeli.
   (Rol: Admin | SQL: INSERT / SELECT / UPDATE / DELETE)
@@ -208,9 +210,10 @@ Her maddenin sonunda ilgili rol ve SQL karşılığı belirtilmiştir.
 ## 8. Ders Konuları Kapsama Matrisi
 
 - **Zayıf varlık (Weak Entity):** Ürün sürümü (Ürün'e bağımlı)
-- **1:N ilişki:** Üretici → Ürün, Ürün → Sürüm, CVE → Yama
-- **M:N ilişki:** CVE ↔ CWE, CVE ↔ Sürüm, Varlık ↔ Sürüm,
-  Varlık ↔ Yama
+- **1:N ilişki:** Üretici → Ürün, Ürün → Sürüm, CVE → Yama, Owner → Varlık, Varlık → PatchApplication, Yama → PatchApplication
+- **1:1 ilişki:** PatchApplication – AuditLog
+- **M:N ilişki:** CVE ↔ CWE, CVE ↔ Sürüm, Varlık ↔ Sürüm
+- **İlişkisel varlık:** PatchApplication (Varlık–Yama ilişkisini ve uygulama tarihini temsil eder)
 - **Çok değerli nitelik:** CVE referans bağlantıları
 - **Bileşik nitelik:** Varlık konumu (bina, kat, oda)
 - **Türetilmiş nitelik:** CVSS puanından türetilen ciddiyet seviyesi
@@ -221,8 +224,7 @@ Her maddenin sonunda ilgili rol ve SQL karşılığı belirtilmiştir.
 - **Trigger:** BR-02, BR-06, BR-09, BR-10
 - **View:** FR-12
 - **Karmaşık sorgular:** FR-05, FR-08, FR-09, FR-10, FR-11
-- **Normalizasyon:** Örnek başlangıç veri yapısından 1NF → 2NF → 3NF
-  dönüşümü
+- **Normalizasyon:** İlişkisel şemanın 1NF, 2NF ve 3NF açısından değerlendirilmesi
 - **CRUD işlemleri:** Güvenlik açığı, ürün, varlık ve kullanıcı
   kayıtlarının yönetimi
 

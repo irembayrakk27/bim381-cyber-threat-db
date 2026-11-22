@@ -1,8 +1,8 @@
-# ER/EER Diyagramı
+# İlişkisel Şema Diyagramı
 
-Bu diyagram, Siber Tehdit İstihbaratı ve Zafiyet Yönetim Sistemi'nin kavramsal veri modelini göstermektedir.
+Bu diyagram, Siber Tehdit İstihbaratı ve Zafiyet Yönetim Sistemi'nin ilişkisel şemasını göstermektedir. Kavramsal ER/EER modeli ayrı olarak `conceptual_model.md` dosyasında açıklanmıştır.
 
-## 1. ER Diyagramı
+## 1. İlişkisel Şema
 
 ```mermaid
 erDiagram
@@ -20,25 +20,25 @@ erDiagram
     }
 
     VENDOR {
-        int vendor_id PK
-        string vendor_name
+        bigint vendor_id PK
+        string name
         string website
     }
 
     PRODUCT {
-        int product_id PK
-        int vendor_id FK
-        string product_name
+        bigint product_id PK
+        bigint vendor_id FK
+        string name
     }
 
     PRODUCT_VERSION {
-        int product_id PK, FK
+        bigint product_id PK, FK
         string version_number PK
         date release_date
     }
 
     PATCH {
-        int patch_id PK
+        string patch_id PK
         string cve_id FK
         date release_date
     }
@@ -55,87 +55,85 @@ erDiagram
 
     CVE_PRODUCT_VERSION {
         string cve_id PK, FK
-        int product_id PK, FK
+        bigint product_id PK, FK
         string version_number PK, FK
     }
 
     ASSET {
-        int asset_id PK
+        bigint asset_id PK
         string asset_name
         string building
         string floor
         string room
-        int owner_id FK
+        bigint owner_id FK
     }
 
     SERVER {
-        int asset_id PK, FK
+        bigint asset_id PK, FK
         string operating_system
         string server_role
     }
 
     ENDPOINT {
-        int asset_id PK, FK
+        bigint asset_id PK, FK
         string username
     }
 
     CLOUD {
-        int asset_id PK, FK
+        bigint asset_id PK, FK
         string provider
         string region
     }
 
     ASSET_PRODUCT_VERSION {
-        int asset_id PK, FK
-        int product_id PK, FK
+        bigint asset_id PK, FK
+        bigint product_id PK, FK
         string version_number PK, FK
         date install_date
     }
 
     PATCH_APPLICATION {
-        int application_id PK
-        int asset_id FK
-        int patch_id FK
+        bigint application_id PK
+        bigint asset_id FK
+        string patch_id FK
         date applied_date
     }
 
     AUDIT_LOG {
-        int audit_log_id PK
-        int application_id FK, UK
+        bigint audit_log_id PK
+        bigint application_id FK, UK
         datetime created_at
         string event_type
     }
 
     USER_ACCOUNT {
-        int user_id PK
-        string user_name
+        bigint user_id PK
+        string name
         string email UK
         string role
     }
 
     ANALYST_REVIEW {
-        int user_id PK, FK
-        int asset_id PK, FK
+        bigint user_id PK, FK
+        bigint asset_id PK, FK
         string cve_id PK, FK
         string review_status
         date review_date
     }
 
     OWNER {
-        int owner_id PK
+        bigint owner_id PK
         string owner_type
     }
 
     DEPARTMENT {
-        int department_id PK
-        int owner_id FK, UK
-        string department_name
+        bigint owner_id PK, FK
+        string name
     }
 
     SUPPLIER {
-        int supplier_id PK
-        int owner_id FK, UK
-        string supplier_name
+        bigint owner_id PK, FK
+        string name
     }
 
     VENDOR ||--o{ PRODUCT : produces
@@ -181,28 +179,31 @@ Asset üst varlığı üç alt türe ayrılır:
 - Cloud
 
 Uzmanlaşma total ve disjoint olarak tanımlanmıştır.
-Her Asset tam olarak bir alt türe ait olmalıdır. Mermaid ER gösterimi bu iki kısıtı tek başına ifade edemediğinden, bu açıklama modelin bağlayıcı kuralıdır. İlişkisel şemada bütünlük kısıtlarıyla uygulanacaktır.
+Her Asset tam olarak bir alt türe ait olmalıdır. Mermaid ER gösterimi bu iki kısıtı tek başına ifade edemediğinden, bu açıklama modelin bağlayıcı kuralıdır. Alt tür üyeliğinin zorunlu ve birbirini dışlayan yapısı uygulama katmanında doğrulanacaktır.
 
 ### 2.3. Kategori / Union Type: Owner
 
 Owner kategorisi Department ve Supplier varlıklarının birleşiminden oluşur.
+- OWNER.owner_type yalnızca `DEPARTMENT` veya `SUPPLIER` değerini alabilir.
+- owner_type ile ilgili alt tür kaydının eşleşmesi uygulama katmanında doğrulanır.
 
 - Her Asset tam olarak bir Owner'a bağlıdır.
 - Bir Owner, Department veya Supplier türünde olmalıdır.
 - Bir Owner aynı anda hem Department hem Supplier olamaz.
 - Bir Department veya Supplier birden fazla Asset'e sahip olabilir.
-- Her Owner tam olarak bir Department veya Supplier tarafından temsil edilmelidir; iki türde birden temsil edilemez. Mermaid ER gösterimi bu category kısıtını tek başına ifade edemediğinden, bu açıklama modelin bağlayıcı kuralıdır. İlişkisel şemada bütünlük kısıtlarıyla uygulanacaktır.
+- Her Owner tam olarak bir Department veya Supplier tarafından temsil edilmelidir; iki türde birden temsil edilemez. Mermaid ER gösterimi bu category kısıtını tek başına ifade edemediğinden, bu açıklama modelin bağlayıcı kuralıdır. owner_type ile alt tür tablosunun eşleşmesi ve alt tür üyeliği uygulama katmanında doğrulanacaktır.
 
 ### 2.4. Üçlü İlişki: AnalystReview
 
 AnalystReview, User, Asset ve CVE arasındaki üçlü ilişkiyi temsil eder. BR-10 gereğince ilişkiye katılan User'ın role değeri Analyst olmalıdır. Bu kural veritabanı trigger'ı ile doğrulanır.
 
-Aynı User–Asset–CVE birleşimi için tek inceleme kaydı tutulur.
+- Aynı User–Asset–CVE birleşimi için tek inceleme kaydı tutulur.
+- review_status yalnızca `Open`, `In_Review` veya `Closed` değerlerini alabilir. Bu kural CHECK kısıtıyla sağlanır.
 
 ### 2.5. PatchApplication ve AuditLog
 
 - PatchApplication, Asset ile Patch arasındaki M:N ilişkinin uygulama kaydıdır.
-- Her Asset–Patch çifti için tek uygulama kaydı tutulur.
+- Her Asset–Patch çifti için tek uygulama kaydı tutulur. Bu kural ilişkisel şemada UNIQUE(asset_id, patch_id) kısıtıyla sağlanır.
 - Her PatchApplication için tam olarak bir AuditLog kaydı oluşturulur.
 - AuditLog, PatchApplication ile 1:1 ilişkilidir.
 - İlişkisel şemada AUDIT_LOG.application_id alanı NOT NULL, UNIQUE ve FOREIGN KEY kısıtlarına sahip olacaktır. Her PatchApplication için AuditLog oluşturulması BR-06 trigger'ı ile sağlanacaktır.

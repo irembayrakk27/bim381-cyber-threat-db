@@ -173,10 +173,9 @@ Cloud, Asset alt türüdür.
 
 | Nitelik | Tür | Açıklama |
 |---|---|---|
-| department_id | Anahtar | Departman kimliği |
-| department_name | Basit | Departman adı |
+| owner_id | Anahtar (OWNER ile paylaşılan) | Ortak sorumlu kimliği |
+| name | Basit | Departman adı |
 
-Not: Kimlik ve ad nitelikleri, DR-16'da eksik bırakılan departman tanımlama bilgileri için öneridir.
 
 ### 2.15. Supplier
 
@@ -184,10 +183,9 @@ Not: Kimlik ve ad nitelikleri, DR-16'da eksik bırakılan departman tanımlama b
 
 | Nitelik | Tür | Açıklama |
 |---|---|---|
-| supplier_id | Anahtar | Tedarikçi kimliği |
-| supplier_name | Basit | Tedarikçi adı |
+| owner_id | Anahtar (OWNER ile paylaşılan) | Ortak sorumlu kimliği |
+| name | Basit | Tedarikçi adı |
 
-Not: Kimlik ve ad nitelikleri, DR-16'da eksik bırakılan tedarikçi tanımlama bilgileri için öneridir.
 
 ## 3. İlişkiler ve Kardinaliteler
 
@@ -199,7 +197,7 @@ Not: Kimlik ve ad nitelikleri, DR-16'da eksik bırakılan tedarikçi tanımlama 
 | Affects | CVE - ProductVersion | M:N | Bir CVE birden fazla ürün sürümünü etkileyebilir. |
 | HasPatch | CVE - Patch | 1:N | Bir CVE için birden fazla yama bulunabilir. Her yama bir CVE'ye bağlıdır. |
 | Uses | Asset - ProductVersion | M:N | Bir varlık birden fazla ürün sürümü kullanabilir. İlişki niteliği: install_date. |
-| Applies / PatchApplication | Asset - Patch | M:N | Yama uygulamaları PatchApplication üzerinden takip edilir; uygulama tarihi applied_date niteliğinde tutulur. |
+| Applies / PatchApplication | Asset - Patch | M:N | Asset–Patch M:N ilişkisi, applied_date niteliği taşıdığı ve AuditLog ile 1:1 ilişki kurduğu için PatchApplication ilişkisel varlığına dönüştürülmüştür. |
 | Owns | Owner - Asset | 1:N | Her varlığın bir sorumlusu vardır. Bir sorumlu birden fazla varlığa sahip olabilir. |
 | Generates | PatchApplication - AuditLog | 1:1 | Her yama uygulaması için tam olarak bir denetim kaydı oluşturulur. |
 
@@ -245,7 +243,7 @@ bir inceleme kaydı tutulur.
 
 Her Product tam olarak bir Vendor'a, her ProductVersion tam olarak bir
 Product'a ve her Patch tam olarak bir CVE'ye bağlıdır.
-Her Asset tam olarak bir alt türe ve bir Owner'a bağlıdır.
+Her Asset tam olarak bir alt türe ve bir Owner'a bağlıdır. Alt tür üyeliği ve Owner kategorisinin doğru alt türle eşleşmesi uygulama katmanında doğrulanır.
 
 ## 4. EER Özel Yapıları
 
@@ -355,6 +353,7 @@ BR-02, BR-06, BR-09 ve BR-10 kurallarının uygulanmasında veritabanı trigger 
 | DR-14 | User varlığı |
 | DR-15 | User–Asset–CVE üçlü ilişkisi |
 | DR-16 | Owner category ve Asset–Owner ilişkisi |
+| DR-17 | PatchApplication–AuditLog 1:1 ilişkisi ve denetim kaydı nitelikleri |
 
 ## 7. Tasarım Kararları ve Varsayımlar
 
@@ -364,5 +363,5 @@ BR-02, BR-06, BR-09 ve BR-10 kurallarının uygulanmasında veritabanı trigger 
 4. Owner, Department ve Supplier kümelerinden oluşan category yapısıdır.
 5. Patch, bağlı olduğu CVE'nin etkilediği tüm ürün sürümleri için geçerli kabul edilir. Ayrı Patch–ProductVersion uygulanabilirlik ilişkisi kurulmaz.
 6. AnalystReview, User–Asset–CVE üçlü ilişkisidir. Aynı üçlü kombinasyon için tek kayıt tutulur; yeni incelemede review_status ve review_date güncellenir.
-7. Department ve Supplier kimlik/ad nitelikleri, mevcut gereksinimlerdeki eksik tanımlama bilgilerini tamamlamak için önerilmiştir.
-8. Denetim kaydının alanları DR maddelerinde ayrıntılı tanımlanmamıştır. BR-06'yı gerçekleştirmek için audit_log_id, created_at ve event_type alanları tasarım varsayımı olarak seçilmiştir.
+7. Department ve Supplier kimlik/ad nitelikleri DR-16 kapsamında tanımlanmıştır.
+8. AuditLog alanları DR-17 kapsamında tanımlanmıştır. Her PatchApplication için AuditLog kaydı BR-06 doğrultusunda veritabanı trigger'ı ile otomatik oluşturulur.
