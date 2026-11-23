@@ -228,20 +228,20 @@ ad ve konum bilgilerini saklamak.
 
 ### 3.12. OWNER
 
-**Amaç:** Departman ve tedarikçi türündeki sorumluları ortak bir
+**Amaç:** Departman ve tedarikçi kategorisindeki sorumluları ortak bir
 kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| owner_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Sorumlu kimliği |
-| owner_type | VARCHAR(20) | NOT NULL, CHECK (owner_type IN ('DEPARTMENT', 'SUPPLIER')) | Sorumlu türü |
+| owner_id | BIGINT | PRIMARY KEY, GENERATED ALWAYS AS IDENTITY | Kategori kimliği |
+| owner_type | VARCHAR(20) | NOT NULL, CHECK (owner_type IN ('DEPARTMENT', 'SUPPLIER')) | Kategori üye türü |
 
 **Tasarım Notları:**
 
-- OWNER, Department ve Supplier varlıklarının birleşim kategorisini temsil eder.
-- Her OWNER kaydı yalnızca bir sorumlu türüne ait olmalıdır.
-- Her OWNER kaydı tam olarak bir alt türe (DEPARTMENT veya SUPPLIER) ait olmalıdır.
-- owner_type ile alt tür tablosunun eşleşmesi ve alt tür üyeliğinin zorunluluğu uygulama katmanında doğrulanacaktır; bu proje kapsamında constraint trigger kullanılmayacaktır.
+- OWNER, DEPARTMENT ve SUPPLIER varlıklarından oluşan category (union type) yapısının ilişkisel gösterimidir.
+- owner_id, kategori kaydının yapay birincil anahtarıdır.
+- Her kategori kaydı yalnızca DEPARTMENT veya SUPPLIER türünde olmalıdır.
+- Kategori kaydının ilgili üye tabloyla eşleşmesi uygulama katmanında doğrulanacaktır.
 
 ### 3.13. DEPARTMENT
 
@@ -249,13 +249,13 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Ortak sorumlu kimliği |
+| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Kategori kimliği |
 | name | VARCHAR(255) | NOT NULL | Departman adı |
 
 **Tasarım Notları:**
 
-- DEPARTMENT, OWNER tablosunun alt türüdür.
-- owner_id hem birincil hem yabancı anahtardır.
+- owner_id, hem DEPARTMENT tablosunun birincil anahtarı hem de OWNER tablosuna yabancı anahtarıdır.
+- DEPARTMENT kaydı, karşılık gelen OWNER kaydı oluşturulduktan sonra eklenmelidir.
 
 ### 3.14. SUPPLIER
 
@@ -263,13 +263,13 @@ kimlik altında temsil etmek.
 
 | Sütun | Veri Tipi | Kısıt | Açıklama |
 |---|---|---|---|
-| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Ortak sorumlu kimliği |
+| owner_id | BIGINT | PRIMARY KEY, FOREIGN KEY REFERENCES OWNER(owner_id) ON DELETE CASCADE ON UPDATE CASCADE | Kategori kimliği |
 | name | VARCHAR(255) | NOT NULL | Tedarikçi adı |
 
 **Tasarım Notları:**
 
-- SUPPLIER, OWNER tablosunun alt türüdür.
-- owner_id hem birincil hem yabancı anahtardır.
+- owner_id, hem SUPPLIER tablosunun birincil anahtarı hem de OWNER tablosuna yabancı anahtarıdır.
+- SUPPLIER kaydı, karşılık gelen OWNER kaydı oluşturulduktan sonra eklenmelidir.
 
 ## 4. İlişki Tabloları
 
