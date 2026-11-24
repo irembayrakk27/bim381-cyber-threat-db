@@ -243,3 +243,14 @@ BEFORE INSERT OR UPDATE ON ANALYST_REVIEW
 FOR EACH ROW EXECUTE FUNCTION check_analyst_role();
 
 COMMIT;
+
+-- FR-12: Summary of critical vulnerabilities
+CREATE OR REPLACE VIEW critical_vulnerability_summary AS
+SELECT
+    cve_id,
+    description,
+    published_date,
+    cvss_score,
+    'Critical' AS severity
+FROM CVE
+WHERE cvss_score >= 9.0;
