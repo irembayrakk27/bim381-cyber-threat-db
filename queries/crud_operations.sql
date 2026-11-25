@@ -2,6 +2,23 @@
 -- FR-14: ANALYST REVIEW OPERATIONS
 -- =========================================================
 
+-- Create an analyst review if it does not already exist.
+INSERT INTO ANALYST_REVIEW (
+    user_id, asset_id, cve_id, review_status, review_date
+)
+SELECT
+    u.user_id,
+    a.asset_id,
+    'CVE-TEST-2026-0003',
+    'In_Review',
+    CURRENT_DATE
+FROM USER_ACCOUNT u
+CROSS JOIN ASSET a
+WHERE u.email = 'analyst1@example.invalid'
+  AND a.asset_name = 'CLOUD-DB-01'
+ON CONFLICT (user_id, asset_id, cve_id) DO NOTHING;
+
+
 -- List analyst reviews.
 SELECT
     u.name AS analyst_name,
