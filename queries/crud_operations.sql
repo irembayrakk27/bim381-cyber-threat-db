@@ -9,7 +9,7 @@ INSERT INTO ANALYST_REVIEW (
 SELECT
     u.user_id,
     a.asset_id,
-    'CVE-TEST-2026-0003',
+    'CVE-2026-113425',
     'In_Review',
     CURRENT_DATE
 FROM USER_ACCOUNT u

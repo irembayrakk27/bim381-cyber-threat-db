@@ -208,6 +208,7 @@ ORDER BY average_cvss DESC;
 -- =========================================================
 
 -- FR-10: Count affected CVEs and calculate average CVSS per product.
+-- Uses GROUP BY and HAVING to list products with at least one vulnerability.
 SELECT
     p.product_id,
     p.name AS product_name,
@@ -219,19 +220,23 @@ JOIN CVE_PRODUCT_VERSION cpv
 JOIN CVE c
     ON cpv.cve_id = c.cve_id
 GROUP BY p.product_id, p.name
+HAVING COUNT(DISTINCT c.cve_id) > 0
 ORDER BY vulnerability_count DESC, p.name;
 
+
 -- FR-11: List assets not affected by any known vulnerability.
+-- Uses LEFT JOIN to identify assets without affected product versions.
 SELECT
     a.asset_id,
     a.asset_name
 FROM ASSET a
-WHERE NOT EXISTS (
-    SELECT 1
+LEFT JOIN (
+    SELECT DISTINCT apv.asset_id
     FROM ASSET_PRODUCT_VERSION apv
     JOIN CVE_PRODUCT_VERSION cpv
         ON apv.product_id = cpv.product_id
        AND apv.version_number = cpv.version_number
-    WHERE apv.asset_id = a.asset_id
-)
+) affected_assets
+    ON a.asset_id = affected_assets.asset_id
+WHERE affected_assets.asset_id IS NULL
 ORDER BY a.asset_id;

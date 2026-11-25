@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle awesome
+
+actor "Admin" as Admin
+actor "Güvenlik Analisti\n(Analyst)" as Analyst
+actor "BT Personeli\n(IT)" as IT
+
+rectangle "Siber Tehdit İstihbaratı ve\nZafiyet Yönetim Sistemi" {
+    usecase "Güvenlik açığı ekle\n(FR-01)" as UC1
+    usecase "Güvenlik açığı güncelle\n(FR-02)" as UC2
+    usecase "Güvenlik açığı sil\n(FR-03)" as UC3
+    usecase "CVSS puanına göre\nzafiyetleri filtrele (FR-04)" as UC4
+    usecase "CVE, CWE ve etkilenen\nürün sürümlerini görüntüle (FR-05)" as UC5
+    usecase "Ürün ve sürüm kayıtlarını\nyönet (FR-06)" as UC6
+    usecase "Kurumsal varlık ekle ve\nürün sürümlerini kaydet (FR-07)" as UC7
+    usecase "Varlığı etkileyen\nzafiyetleri listele (FR-08)" as UC8
+    usecase "Uygulanmamış yaması bulunan\nzafiyetleri listele (FR-09)" as UC9
+    usecase "Ürün bazında zafiyet\nistatistiklerini görüntüle (FR-10)" as UC10
+    usecase "Etkilenmeyen varlıkları\nlistele (FR-11)" as UC11
+    usecase "Kritik zafiyet özetini\ngörüntüle (FR-12)" as UC12
+    usecase "Yama uygulamasını\nkaydet (FR-13)" as UC13
+    usecase "Analist incelemelerini\nekle ve listele (FR-14)" as UC14
+    usecase "Kullanıcıları yönet\n(FR-15)" as UC15
+}
+
+Admin -- UC1
+Admin -- UC2
+Admin -- UC3
+Admin -- UC6
+Admin -- UC15
+
+Analyst -- UC1
+Analyst -- UC2
+Analyst -- UC4
+Analyst -- UC5
+Analyst -- UC8
+Analyst -- UC9
+Analyst -- UC10
+Analyst -- UC12
+Analyst -- UC14
+
+IT -- UC7
+IT -- UC8
+IT -- UC9
+IT -- UC11
+IT -- UC13
+
+@enduml
