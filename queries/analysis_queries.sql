@@ -202,3 +202,36 @@ GROUP BY
         ELSE 'Low'
     END
 ORDER BY average_cvss DESC;
+
+-- =========================================================
+-- 6. FUNCTIONAL REQUIREMENT QUERIES
+-- =========================================================
+
+-- FR-10: Count affected CVEs and calculate average CVSS per product.
+SELECT
+    p.product_id,
+    p.name AS product_name,
+    COUNT(DISTINCT c.cve_id) AS vulnerability_count,
+    ROUND(AVG(c.cvss_score), 2) AS average_cvss
+FROM PRODUCT p
+JOIN CVE_PRODUCT_VERSION cpv
+    ON p.product_id = cpv.product_id
+JOIN CVE c
+    ON cpv.cve_id = c.cve_id
+GROUP BY p.product_id, p.name
+ORDER BY vulnerability_count DESC, p.name;
+
+-- FR-11: List assets not affected by any known vulnerability.
+SELECT
+    a.asset_id,
+    a.asset_name
+FROM ASSET a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM ASSET_PRODUCT_VERSION apv
+    JOIN CVE_PRODUCT_VERSION cpv
+        ON apv.product_id = cpv.product_id
+       AND apv.version_number = cpv.version_number
+    WHERE apv.asset_id = a.asset_id
+)
+ORDER BY a.asset_id;
